@@ -1,0 +1,26 @@
+  Measurement Number     Measurement type
+                  26                DC IV
+
+      Measurement ID             SeriesID
+       739603.519708                    0
+
+         MeasureMode                Bias1                Bias2
+                   1                    0                 -0.4
+
+                Step  Positive compliance  Negative compliance
+                 0.1                  0.1                  0.1
+
+  RealMeasuredPoints
+                  10
+
+        Bias        Current     Resistance
+0.0000e+00   1.9956e-10   0.0000e+00
+-1.0000e-01   -2.1276e-07   4.7001e+05
+-2.0000e-01   -3.9474e-07   5.0666e+05
+-3.0000e-01   -5.7604e-07   5.2080e+05
+-4.0000e-01   -7.5698e-07   5.2842e+05
+-4.0000e-01   -7.5696e-07   5.2843e+05
+-3.0000e-01   -5.7592e-07   5.2091e+05
+-2.0000e-01   -3.9488e-07   5.0648e+05
+-1.0000e-01   -2.1286e-07   4.6979e+05
+0.0000e+00   2.0783e-10   0.0000e+00

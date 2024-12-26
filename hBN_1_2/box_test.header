@@ -1,0 +1,46 @@
+B1500A file ver 2.0
+
+              Sample              Contact
+             hBN_1_2             box_test
+______________________________________________________
+
+  Measurement Number     Measurement type
+                   1                DC IV
+
+      Measurement ID             SeriesID
+       739603.506939                    0
+
+              File:      \box_test\1.data
+
+______________________________________________________
+
+  Measurement Number     Measurement type
+                   2                DC IV
+
+      Measurement ID             SeriesID
+       739603.507383                    0
+
+              File:      \box_test\2.data
+
+______________________________________________________
+
+  Measurement Number     Measurement type
+                   3                DC IV
+
+      Measurement ID             SeriesID
+       739603.507656                    0
+
+              File:      \box_test\3.data
+
+______________________________________________________
+
+  Measurement Number     Measurement type
+                   4                DC IV
+
+      Measurement ID             SeriesID
+       739603.509253                    0
+
+              File:      \box_test\4.data
+
+______________________________________________________
+

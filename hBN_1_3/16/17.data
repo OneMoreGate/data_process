@@ -1,0 +1,25 @@
+  Measurement Number     Measurement type
+                  17            NewRelaib
+
+      Measurement ID                 Mode
+       739603.538312                   PG
+
+        SetPulseBias        SetPulseWidth       ResetPulseBias      ResetPulseWidth
+                -4.4                0.002                    0                0.002
+
+           Rise time            Fall Time           Separation
+               0.001                0.001                0.001
+
+              Cycles       Steps in cycle         Test voltage
+                   1                  100                    1
+
+      Step        LRS        HRS
+         1 52579691.0943          0
+
+       MeasuredPoint                    1
+ IntelStep    LRSBias    HRSBias
+         1       -3.9          0
+
+
+
+
