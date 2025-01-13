@@ -133,7 +133,7 @@ class Folder():
         pass
     
 
-class Data():
+class Draw_DC_IV():
      
     def __init__(self, folder: Folder) -> None:
         if isinstance(folder, Folder):
