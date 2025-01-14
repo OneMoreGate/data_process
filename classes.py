@@ -1,5 +1,6 @@
 import matplotlib
 from matplotlib import pyplot as plt
+import matplotlib.axes
 from matplotlib.collections import LineCollection
 import pandas as pd 
 import numpy as np 
@@ -166,18 +167,18 @@ class Process_DC_IV():
         on_off_voltage = []
         for folder in list(dict_of_measurs.keys()):
             for measur in list(dict_of_measurs[folder].keys()):
-                    if dict_of_measurs[folder][measur] == 'DC_IV':
-                        DC_IV_data = self.get_single_data(folder, measur)
-                    else:
-                        continue
-                    V, I = DC_IV_data['voltage'], DC_IV_data['current']
-                    delta_V = V[1] - V[0]
-                    deriv = np.array([(I[i+1] - I[i])/(V[i+1] - V[i]) if (V[i+1] - V[i]) != 0 else (I[i+1] - I[i])/delta_V for i in range(len(I) - 1) ])
-                    df_2 = pd.DataFrame([V[:-1], np.abs(deriv)]).transpose()
-                    df_2.rename(columns = {'voltage': 'voltage', 'Unnamed 0': 'derivative'}, inplace=True)
-                    df_plus = df_2.loc[df_2['voltage'] > 0].reset_index(drop = True)
-                    df_minus = df_2.loc[df_2['voltage'] < 0].reset_index(drop = True)
-                    on_off_voltage.append([df_minus.loc[np.argmax(df_minus['derivative'])]['voltage'] , np.abs(df_plus.loc[np.argmax(df_plus['derivative'])]['voltage'])])
+                if dict_of_measurs[folder][measur] == 'DC_IV':
+                    DC_IV_data = self.get_single_data(folder, measur)
+                else:
+                    continue
+                V, I = DC_IV_data['voltage'], DC_IV_data['current']
+                delta_V = V[1] - V[0]
+                deriv = np.array([(I[i+1] - I[i])/(V[i+1] - V[i]) if (V[i+1] - V[i]) != 0 else (I[i+1] - I[i])/delta_V for i in range(len(I) - 1) ])
+                df_2 = pd.DataFrame([V[:-1], np.abs(deriv)]).transpose()
+                df_2.rename(columns = {'voltage': 'voltage', 'Unnamed 0': 'derivative'}, inplace=True)
+                df_plus = df_2.loc[df_2['voltage'] > 0].reset_index(drop = True)
+                df_minus = df_2.loc[df_2['voltage'] < 0].reset_index(drop = True)
+                on_off_voltage.append([df_minus.loc[np.argmax(df_minus['derivative'])]['voltage'] , np.abs(df_plus.loc[np.argmax(df_plus['derivative'])]['voltage'])])
         return np.array(on_off_voltage).transpose()
     
     # возвращает словать со всеми ВАХами на основе списка измерений
@@ -221,7 +222,7 @@ class Draw_DC_IV(Process_DC_IV):
         return ax.add_collection(lc)
         
     # рисует одну ВАХ
-    def draw_single_plot(self, contact: str, measure: str, save_path: str) -> None:
+    def single_plot(self, contact: str, measure: str, save_path: str) -> None:
         DC_IV_data = self.get_single_data(contact=contact, measure=measure)
         V, I = DC_IV_data['voltage'], np.abs(DC_IV_data['current'])
         fig, ax = plt.subplots(figsize = [10,5])
@@ -245,8 +246,8 @@ class Draw_DC_IV(Process_DC_IV):
             os.mkdir(path)
         else:
             os.mkdir(path)
-    # рисует графиики по кастомному словарю и выбранному пути
-    def draw_from_custom_dict(self, dict_of_measurs: dict, save_path: str) -> None:
+    # рисует отдельные графиики по кастомному словарю и выбранному пути
+    def from_dict(self, dict_of_measurs: dict, save_path: str) -> None:
         save_folder = os.path.dirname(self.sample_path) + '\\' + str(save_path)
         self._create_dir(save_folder)
         for folder in list(dict_of_measurs.keys()):
@@ -255,10 +256,43 @@ class Draw_DC_IV(Process_DC_IV):
             for measur in list(dict_of_measurs[folder].keys()):
                     if dict_of_measurs[folder][measur] == 'DC_IV':
                         measure_save_path = contact_save_path + '\\' + measur + '.png'
-                        self.draw_single_plot(folder, measur, measure_save_path)
+                        self.single_plot(folder, measur, measure_save_path)
                     else:
                         continue
 
     # рисует все графики 
-    def draw_all(self):
-        self.draw_from_custom_dict(self.dict_of_measurments, self.main_folder + '_graphs')
+    def all(self):
+        self.from_dict(self.dict_of_measurments, self.main_folder + '_graphs')
+
+    # переводит hex значения цветов в RGB
+    def _hex_to_RGB(self, hex_str):
+        return [int(hex_str[i:i+2], 16) for i in range(1,6,2)]
+
+    # задает градиент для последовательности измерений 
+    def _colored_lines(self,axes: matplotlib.axes, c1: str = '#ff0000', c2: str = '#1e00ff'):
+        lines = axes.get_lines()
+        n = len(lines)
+        assert n > 1
+        c1_rgb = np.array(self._hex_to_RGB(c1))/255
+        c2_rgb = np.array(self._hex_to_RGB(c2))/255
+        mix_pcts = [x/(n-1) for x in range(n)]
+        rgb_colors = [((1-mix)*c1_rgb + (mix*c2_rgb)) for mix in mix_pcts]
+        colors = ['#' + ''.join([format(int(round(val*255)), '02x') for val in item]) for item in rgb_colors]
+        for i in range(n):
+            lines[i].set_color(colors[i])
+
+    # рисует множество данных на одном графике
+    def multiple(self, dict_of_measurs: dict, axes: matplotlib.axes, colorised: bool = False, **kwargs) -> None:
+        for folder in list(dict_of_measurs.keys()):
+            sorted_measurs_dict = dict(sorted(dict_of_measurs[folder].items(), key=lambda item: int(item[0])))
+            for measur in list(sorted_measurs_dict.keys()):
+                if dict_of_measurs[folder][measur] == 'DC_IV':
+                    DC_IV_data = self.get_single_data(folder, measur)
+                    axes.plot(DC_IV_data['voltage'], np.abs(DC_IV_data['current']), **kwargs)
+                else:
+                    continue
+        if colorised == True:
+            self._colored_lines(axes)
+        else:
+            for line in axes.get_lines():
+                line.set_color('#acacac')
