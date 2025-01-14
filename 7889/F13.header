@@ -1,0 +1,36 @@
+B1500A file ver 2.0
+
+              Sample              Contact
+                7889                  F13
+______________________________________________________
+
+  Measurement Number     Measurement type
+                   1                DC IV
+
+      Measurement ID             SeriesID
+       739599.790869                    0
+
+              File:           \F13\1.data
+
+______________________________________________________
+
+  Measurement Number     Measurement type
+                   2                DC IV
+
+      Measurement ID             SeriesID
+       739599.790963                    0
+
+              File:           \F13\2.data
+
+______________________________________________________
+
+  Measurement Number     Measurement type
+                   3                DC IV
+
+      Measurement ID             SeriesID
+       739599.791126                    0
+
+              File:           \F13\3.data
+
+______________________________________________________
+
