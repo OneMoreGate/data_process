@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np 
 import os
 import shutil
+import threading
 
 class Measurments():
     # инициализация, проверка существования папки, проверка пустоты папки
@@ -250,15 +251,21 @@ class Draw_DC_IV(Process_DC_IV):
     def from_dict(self, dict_of_measurs: dict, save_path: str) -> None:
         save_folder = os.path.dirname(self.sample_path) + '\\' + str(save_path)
         self._create_dir(save_folder)
+
+        def _one_thread(dict_of_measurs: dict, folder: str) -> None:
+            for measur in list(dict_of_measurs[folder].keys()):
+                if dict_of_measurs[folder][measur] == 'DC_IV':
+                    measure_save_path = contact_save_path + '\\' + measur + '.png'
+                    self.single_plot(folder, measur, measure_save_path)
+                else:
+                    continue
+
         for folder in list(dict_of_measurs.keys()):
             contact_save_path = save_folder + '\\' + folder
             self._create_dir(contact_save_path)
-            for measur in list(dict_of_measurs[folder].keys()):
-                    if dict_of_measurs[folder][measur] == 'DC_IV':
-                        measure_save_path = contact_save_path + '\\' + measur + '.png'
-                        self.single_plot(folder, measur, measure_save_path)
-                    else:
-                        continue
+            t = threading.Thread(target=_one_thread, args= (dict_of_measurs, folder,))
+            t.start()
+            t.join()
 
     # рисует все графики 
     def all(self):
