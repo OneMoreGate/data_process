@@ -8,6 +8,7 @@ import os
 import shutil
 import threading
 import multiprocessing
+import time
 
 class Measurments():
     # инициализация, проверка существования папки, проверка пустоты папки
@@ -222,24 +223,57 @@ class Draw_DC_IV(Process_DC_IV):
         lc = LineCollection(segments, **default_kwargs)
         lc.set_array(c) 
         return ax.add_collection(lc)
-        
-    # рисует одну ВАХ
-    def single_plot(self, contact: str, measure: str, save_path: str) -> None:
+    
+    def _get_data(self, queue, contact, measure):
         DC_IV_data = self.get_single_data(contact=contact, measure=measure)
         V, I = DC_IV_data['voltage'], np.abs(DC_IV_data['current'])
+        queue.put([V, I])
+
+    def _create_figure(self, queue):
         fig, ax = plt.subplots(figsize = [10,5])
         ax.set_yscale('log')
         ax.grid(which='major', linewidth = 0.6)
         ax.grid(which='minor', linewidth = 0.2)
-        ax.set_xlim(xmin= V.min()*1.2, xmax=V.max()*1.2)
-        ax.set_ylim(ymin= I.min()*0.2, ymax=I.max()*5)
+        queue.put([fig, ax])
+    
+    def _set_lims(self, ax, V, I):
+        ax.set_xlim(xmin= V.min()*1.2, xmax= V.max()*1.2)
+        ax.set_ylim(ymin= I.min()*0.2, ymax= I.max()*5)
+
+    def _get_colorised(self, fig, ax, V, I):
         color = np.linspace(0, 1, len(V))
         lines = self._colored_line(V, I, color, ax, cmap = 'plasma')
         cbar = fig.colorbar(lines)
         cbar.set_ticks([0, 1])
         cbar.set_ticklabels(['start','end'], size = 15)
-        plt.savefig(save_path, bbox_inches = 'tight', dpi = 200)
-        plt.close()
+        
+    # рисует одну ВАХ
+    def single_plot(self, contact: str, measure: str, save_path: str) -> None:
+        #self._get_data(contact, measure)
+        #self._create_figure()
+
+        if __name__ == '__main__':
+            q_1 = multiprocessing.Queue()
+            q_2 = multiprocessing.Queue()
+            p_get_data = multiprocessing.Process(target=self._get_data, args=(q_1, contact, measure,))
+            p_create_figure = multiprocessing.Process(target=self._create_figure, args=(q_2,))
+            p_get_data.start()
+            p_create_figure.start()
+            V, I = q_1.get()
+            fig, ax = q_2.get()
+            p_get_data.join()
+            p_create_figure.join()
+            print(contact, measure)
+            print(I)
+            p_set_lims = multiprocessing.Process(target=self._set_lims, args=(ax, V, I,))
+            p_get_colorised = multiprocessing.Process(target=self._get_colorised, args=(fig, ax, V, I,))
+            p_set_lims.start()
+            p_get_colorised.start()
+            p_set_lims.join()
+            p_get_colorised.join()
+
+            plt.savefig(save_path, bbox_inches = 'tight', dpi = 200)
+            plt.close()
 
     # создает папку по запрошенному пути
     def _create_dir(self, path: str) -> None:
@@ -253,23 +287,17 @@ class Draw_DC_IV(Process_DC_IV):
         save_folder = os.path.dirname(self.sample_path) + '\\' + str(save_path)
         self._create_dir(save_folder)
         for folder in list(dict_of_measurs.keys()):
-            contact_save_path = save_folder + '\\' + folder
+            if len(list(dict_of_measurs.keys())) > 1:
+                contact_save_path = save_folder + '\\' + folder
+            else:
+                contact_save_path = save_folder
             self._create_dir(contact_save_path)
-            if __name__ == "__main__":
-                #process_list = []
-                for measur in list(dict_of_measurs[folder].keys()):
-                    if dict_of_measurs[folder][measur] == 'DC_IV':
-                        measure_save_path = contact_save_path + '\\' + measur + '.png'
-                        #p = multiprocessing.Process(target=self.single_plot, args=(folder, measur, measure_save_path,))
-                        t = threading.Thread(target=self.single_plot, args=(folder, measur, measure_save_path,))
-                        t.start()
-                        t.join()
-                        #p.start()
-                        #process_list.append(p)
-                    else:
-                        continue
-                #for proc in process_list:
-                #    proc.join()
+            for measur in list(dict_of_measurs[folder].keys()):
+                if dict_of_measurs[folder][measur] == 'DC_IV':
+                    measure_save_path = contact_save_path + '\\' + measur + '.png'
+                    self.single_plot(folder, measur, measure_save_path)
+                else:
+                    continue
 
 
     # рисует все графики 
@@ -313,4 +341,6 @@ m = Measurments('hBN_1')
 m.delete_measurments({16: list(range(52)) + list(range(101,107)) + [154, 155] })
 p = Process_DC_IV(m.get_abspath())
 d = Draw_DC_IV(p, m)
-d.all()
+dict_16 = m.get_contact_dict(16)
+
+d.from_dict(dict_16, 'here')
