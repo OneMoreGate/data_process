@@ -6,8 +6,6 @@ import pandas as pd
 import numpy as np 
 import os
 import shutil
-import threading
-import multiprocessing
 
 class Measurments():
     # инициализация, проверка существования папки, проверка пустоты папки
@@ -248,29 +246,20 @@ class Draw_DC_IV(Process_DC_IV):
             os.mkdir(path)
         else:
             os.mkdir(path)
+
     # рисует отдельные графиики по кастомному словарю и выбранному пути
     def from_dict(self, dict_of_measurs: dict, save_path: str) -> None:
         save_folder = os.path.dirname(self.sample_path) + '\\' + str(save_path)
         self._create_dir(save_folder)
-        for folder in list(dict_of_measurs.keys()):
-            contact_save_path = save_folder + '\\' + folder
+        for contact in list(dict_of_measurs.keys()):
+            contact_save_path = save_folder + '\\' + contact
             self._create_dir(contact_save_path)
-            if __name__ == "__main__":
-                #process_list = []
-                for measur in list(dict_of_measurs[folder].keys()):
-                    if dict_of_measurs[folder][measur] == 'DC_IV':
-                        measure_save_path = contact_save_path + '\\' + measur + '.png'
-                        #p = multiprocessing.Process(target=self.single_plot, args=(folder, measur, measure_save_path,))
-                        t = threading.Thread(target=self.single_plot, args=(folder, measur, measure_save_path,))
-                        t.start()
-                        t.join()
-                        #p.start()
-                        #process_list.append(p)
-                    else:
-                        continue
-                #for proc in process_list:
-                #    proc.join()
-
+            for measur in list(dict_of_measurs[contact].keys()):
+                if dict_of_measurs[contact][measur] == 'DC_IV':
+                    measure_save_path = contact_save_path + '\\' + measur + '.png'
+                    self.single_plot(contact, measur, measure_save_path)
+                else:
+                    continue
 
     # рисует все графики 
     def all(self):
@@ -294,23 +283,20 @@ class Draw_DC_IV(Process_DC_IV):
             lines[i].set_color(colors[i])
 
     # рисует множество данных на одном графике
-    def multiple(self, dict_of_measurs: dict, axes: matplotlib.axes, colorised: bool = False, **kwargs) -> None:
+    def multiple(self, dict_of_measurs: dict, axes: matplotlib.axes, colorised: bool = False, color: str = '#acacac') -> None:
+        data_colletcion = []
         for folder in list(dict_of_measurs.keys()):
             sorted_measurs_dict = dict(sorted(dict_of_measurs[folder].items(), key=lambda item: int(item[0])))
             for measur in list(sorted_measurs_dict.keys()):
                 if dict_of_measurs[folder][measur] == 'DC_IV':
                     DC_IV_data = self.get_single_data(folder, measur)
-                    axes.plot(DC_IV_data['voltage'], np.abs(DC_IV_data['current']), **kwargs)
+                    V_I = np.array([DC_IV_data['voltage'], np.abs(DC_IV_data['current'])]).transpose()
+                    data_colletcion.append(V_I)
                 else:
                     continue
+        
         if colorised == True:
             self._colored_lines(axes)
         else:
-            for line in axes.get_lines():
-                line.set_color('#acacac')
-
-m = Measurments('hBN_1')
-m.delete_measurments({16: list(range(52)) + list(range(101,107)) + [154, 155] })
-p = Process_DC_IV(m.get_abspath())
-d = Draw_DC_IV(p, m)
-d.all()
+            line_collection = LineCollection(data_colletcion, colors=color)
+            axes.add_collection(line_collection)
