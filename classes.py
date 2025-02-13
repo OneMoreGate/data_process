@@ -290,8 +290,7 @@ class Draw_DC_IV(Process_DC_IV):
             for measur in list(sorted_measurs_dict.keys()):
                 if dict_of_measurs[folder][measur] == 'DC_IV':
                     DC_IV_data = self.get_single_data(folder, measur)
-                    V_I = np.array([DC_IV_data['voltage'], np.abs(DC_IV_data['current'])]).transpose()
-                    data_colletcion.append(V_I)
+                    data_colletcion.append(np.array([DC_IV_data['voltage'], np.abs(DC_IV_data['current'])]).transpose())
                 else:
                     continue
         
