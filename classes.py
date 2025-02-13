@@ -283,7 +283,7 @@ class Draw_DC_IV(Process_DC_IV):
             lines[i].set_color(colors[i])
 
     # рисует множество данных на одном графике
-    def multiple(self, dict_of_measurs: dict, axes: matplotlib.axes, colorised: bool = False, color: str = '#acacac') -> None:
+    def multiple(self, dict_of_measurs: dict, axes: matplotlib.axes, colorised: bool = False, color: str = '#acacac', label: str = None) -> None:
         data_colletcion = []
         for folder in list(dict_of_measurs.keys()):
             sorted_measurs_dict = dict(sorted(dict_of_measurs[folder].items(), key=lambda item: int(item[0])))
@@ -297,5 +297,5 @@ class Draw_DC_IV(Process_DC_IV):
         if colorised == True:
             self._colored_lines(axes)
         else:
-            line_collection = LineCollection(data_colletcion, colors=color)
+            line_collection = LineCollection(data_colletcion, colors=color, label = label)
             axes.add_collection(line_collection)
