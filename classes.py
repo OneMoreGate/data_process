@@ -205,9 +205,9 @@ class Draw_DC_IV(Process_DC_IV):
             ValueError(f'input values must be {Process_DC_IV} and {Measurments} type')
 
     # последовательно раскрашивает линию на графике от начала в конец
-    def _colored_line(self, voltage, current, c, ax: matplotlib.axes, **lc_kwargs):
+    def _colored_line(self, voltage, current, c, ax: matplotlib.axes, **kwargs):
         default_kwargs = {"capstyle": "butt"}
-        default_kwargs.update(lc_kwargs)
+        default_kwargs.update(kwargs)
         x = np.asarray(voltage)
         y = np.asarray(current)
         x_midpts = np.hstack((x[0], 0.5 * (x[1:] + x[:-1]), x[-1]))
@@ -225,6 +225,7 @@ class Draw_DC_IV(Process_DC_IV):
         DC_IV_data = self.get_single_data(contact=contact, measure=measure)
         V, I = DC_IV_data['voltage'], np.abs(DC_IV_data['current'])
         fig, ax = plt.subplots(figsize = [10,5])
+        ax.set_title(f'Contact {contact}, measurement № {measure}')
         ax.set_yscale('log')
         ax.grid(which='major', linewidth = 0.6)
         ax.grid(which='minor', linewidth = 0.2)
@@ -260,7 +261,7 @@ class Draw_DC_IV(Process_DC_IV):
                 else:
                     continue
 
-    # рисует все графики 
+    # рисует все графики из указанной папки
     def all(self):
         self.from_dict(self.dict_of_measurments, self.main_folder + '_graphs')
 
@@ -269,20 +270,17 @@ class Draw_DC_IV(Process_DC_IV):
         return [int(hex_str[i:i+2], 16) for i in range(1,6,2)]
 
     # задает градиент для последовательности измерений 
-    def _colored_lines(self,axes: matplotlib.axes, c1: str = '#ff0000', c2: str = '#1e00ff'):
-        lines = axes.get_lines()
-        n = len(lines)
-        assert n > 1
-        c1_rgb = np.array(self._hex_to_RGB(c1))/255
-        c2_rgb = np.array(self._hex_to_RGB(c2))/255
+    def colored_lines(self, line_coll, start_color: str = '#ff0000', end_color: str = '#1e00ff'):
+        n = len(line_coll._paths)
+        start_color_rgb = np.array(self._hex_to_RGB(start_color))/255
+        end_color_rgb = np.array(self._hex_to_RGB(end_color))/255
         mix_pcts = [x/(n-1) for x in range(n)]
-        rgb_colors = [((1-mix)*c1_rgb + (mix*c2_rgb)) for mix in mix_pcts]
+        rgb_colors = [((1-mix)*start_color_rgb + (mix*end_color_rgb)) for mix in mix_pcts]
         colors = ['#' + ''.join([format(int(round(val*255)), '02x') for val in item]) for item in rgb_colors]
-        for i in range(n):
-            lines[i].set_color(colors[i])
+        line_coll.set_color(colors)
 
     # рисует множество данных на одном графике
-    def multiple(self, dict_of_measurs: dict, axes: matplotlib.axes, colorised: bool = False, color: str = '#acacac', label: str = None) -> None:
+    def multiple(self, dict_of_measurs: dict, axes: matplotlib.axes, **kwargs) -> None:
         data_colletcion = []
         for folder in list(dict_of_measurs.keys()):
             sorted_measurs_dict = dict(sorted(dict_of_measurs[folder].items(), key=lambda item: int(item[0])))
@@ -292,9 +290,5 @@ class Draw_DC_IV(Process_DC_IV):
                     data_colletcion.append(np.array([DC_IV_data['voltage'], np.abs(DC_IV_data['current'])]).transpose())
                 else:
                     continue
-        
-        if colorised == True:
-            self._colored_lines(axes)
-        else:
-            line_collection = LineCollection(data_colletcion, colors=color, label = label)
-            axes.add_collection(line_collection)
+        line_collection = LineCollection(data_colletcion, **kwargs)
+        return axes.add_collection(line_collection, autolim=True)
