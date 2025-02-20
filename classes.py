@@ -1,6 +1,5 @@
 import matplotlib
 from matplotlib import pyplot as plt
-import matplotlib.axes
 from matplotlib.collections import LineCollection
 import pandas as pd 
 import numpy as np 
