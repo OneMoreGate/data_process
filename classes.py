@@ -291,4 +291,4 @@ class Draw_DC_IV(Process_DC_IV):
                 else:
                     continue
         line_collection = LineCollection(data_colletcion, **kwargs)
-        return axes.add_collection(line_collection, autolim=True)
+        return axes.add_collection(line_collection)

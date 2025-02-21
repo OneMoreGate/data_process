@@ -1,0 +1,76 @@
+B1500A file ver 2.0
+
+              Sample              Contact
+           sample_1c                 test
+______________________________________________________
+
+  Measurement Number     Measurement type
+                   1                DC IV
+
+      Measurement ID             SeriesID
+       739665.515073                    0
+
+              File:          \test\1.data
+
+______________________________________________________
+
+  Measurement Number     Measurement type
+                   2                DC IV
+
+      Measurement ID             SeriesID
+       739665.515310                    0
+
+              File:          \test\2.data
+
+______________________________________________________
+
+  Measurement Number     Measurement type
+                   3                DC IV
+
+      Measurement ID             SeriesID
+       739665.515466                    0
+
+              File:          \test\3.data
+
+______________________________________________________
+
+  Measurement Number     Measurement type
+                   4                DC IV
+
+      Measurement ID             SeriesID
+       739665.515547                    0
+
+              File:          \test\4.data
+
+______________________________________________________
+
+  Measurement Number     Measurement type
+                   5                DC IV
+
+      Measurement ID             SeriesID
+       739665.515695                    0
+
+              File:          \test\5.data
+
+______________________________________________________
+
+  Measurement Number     Measurement type
+                   6                DC IV
+
+      Measurement ID             SeriesID
+       739665.515752                    0
+
+              File:          \test\6.data
+
+______________________________________________________
+
+  Measurement Number     Measurement type
+                   7                DC IV
+
+      Measurement ID             SeriesID
+       739665.515805                    0
+
+              File:          \test\7.data
+
+______________________________________________________
+
