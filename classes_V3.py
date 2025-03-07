@@ -229,20 +229,29 @@ class DC_IV():
             plt.savefig(save_path, bbox_inches = 'tight', dpi = 200)
             plt.close()
 
-    def draw_single_line(self, ax: axes, contact: str, measur: str, **kwargs) -> axes:
+    def draw_single_line(self, contact: str, axes: axes, measur: str, **kwargs) -> axes:
         contact = self.__contact_errors(contact)
         V, I = self.get_single_data(contact, measur)
         I = np.abs(I)
-        line = ax.plot(V, I, **kwargs)
+        line = axes.plot(V, I, **kwargs)
         return line
 
     # рисует множество данных на одном графике
-    def draw_multiple_lines(self, contact: str | int, axes: axes, **kwargs):
+    def draw_multiple_lines(self, contact: str | int, axes: axes, measurs: list = None, **kwargs):
         contact = self.__contact_errors(contact)
         data_colletcion = []
-        for measur in self.__full_DC_IV_dict[contact]:
-            V, I = self.get_single_data(contact, measur)
-            data_colletcion.append(np.array([V, np.abs(I)]).transpose())
+        if measurs == None:
+            for measur in self.__full_DC_IV_dict[contact]:
+                V, I = self.get_single_data(contact, measur)
+                data_colletcion.append(np.array([V, np.abs(I)]).transpose())
+        else:
+            if not isinstance(measurs, list):
+                raise TypeError(f'measurs must be list type not {type(measurs)}')
+            for measur in measurs:
+                if not isinstance(measur, int):
+                    raise TypeError(f'measurs elements must be int type not {type(measur)}')
+                V, I = self.get_single_data(contact, measur)
+                data_colletcion.append(np.array([V, np.abs(I)]).transpose())
         line_collection = LineCollection(data_colletcion, **kwargs)
         lines = axes.add_collection(line_collection)
         axes.autoscale_view()
