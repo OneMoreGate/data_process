@@ -179,30 +179,27 @@ class DC_IV():
     def get_ReRAM_on_off_voltage(self, contact: str | int, branch: str = 'both') -> dict | list:
         if branch not in ['both', 'b', 'positive', 'p', 'negative', 'n']:
             raise ValueError('uncorrect branch value')
-        positive_voltage_switch = []
-        negative_voltage_switch = []
+        positive_switch = []
+        negative_switch = []
         contact = self.__contact_errors(contact)
         for measur in self.__full_DC_IV_dict[contact]:
             Voltage, Current = self.get_single_data(contact, measur)
             delta_V = Voltage[1] - Voltage[0]
             derivative = []
             for i in range(len(Current) -1):
-                if Voltage[i + 1] - Voltage[i] != 0:
-                    derivative.append((Current[i + 1] - Current[i])/(Voltage[i + 1] - Voltage[i]))
-                else:
-                    derivative.append((Current[i+1] - Current[i])/delta_V)
-            df_deriv = pd.DataFrame([Voltage[:-1], np.abs(derivative)]).transpose()
+                derivative.append((Current[i + 1] - Current[i])/(delta_V))
+            df_deriv = pd.DataFrame([pd.Series(Voltage[:-1]), pd.Series(derivative)]).transpose()
             df_deriv.rename(columns = {'voltage': 'voltage', 'Unnamed 0': 'derivative'}, inplace=True)
             pos_voltage_deriv = df_deriv.loc[df_deriv['voltage'] > 0].reset_index(drop = True)
             neg_voltage_deriv = df_deriv.loc[df_deriv['voltage'] < 0].reset_index(drop = True)
-            negative_voltage_switch.append(neg_voltage_deriv.loc[np.argmax(neg_voltage_deriv['derivative'])]['voltage'])
-            positive_voltage_switch.append(pos_voltage_deriv.loc[np.argmax(pos_voltage_deriv['derivative'])]['voltage'])
+            negative_switch.append(neg_voltage_deriv.loc[np.argmax(neg_voltage_deriv['derivative'])]['voltage'])
+            positive_switch.append(pos_voltage_deriv.loc[np.argmax(np.abs(pos_voltage_deriv['derivative']))]['voltage'])
         if branch == 'both' or branch == 'b':
-            return {'positive_switch': positive_voltage_switch, 'negative_switch': negative_voltage_switch}
+            return {'positive_switch': positive_switch, 'negative_switch': negative_switch}
         elif branch == 'positive' or branch == 'p':
-            return positive_voltage_switch
+            return positive_switch
         elif branch == 'negative' or branch == 'n':
-            return negative_voltage_switch
+            return negative_switch
             
     # рисует одну ВАХ
     def draw_single_plot(self, contact: str | int, measur: str | int, save_path: str = None, cmap: str = 'plasma') -> None:
@@ -229,6 +226,7 @@ class DC_IV():
             plt.savefig(save_path, bbox_inches = 'tight', dpi = 200)
             plt.close()
 
+    # добавляет одну ВАХ на график
     def draw_single_line(self, contact: str, axes: axes, measur: str, **kwargs) -> axes:
         contact = self.__contact_errors(contact)
         V, I = self.get_single_data(contact, measur)
