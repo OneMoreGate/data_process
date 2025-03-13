@@ -1,0 +1,28 @@
+  Measurement Number     Measurement type
+                  10                DC IV
+
+      Measurement ID             SeriesID
+       739681.672873                    0
+
+         MeasureMode                Bias1                Bias2
+                   1                    0                   -1
+
+                Step  Positive compliance  Negative compliance
+                 0.2                1e-06                1e-06
+
+  RealMeasuredPoints
+                  12
+
+        Bias        Current     Resistance
+0.0000e+00   2.1500e-12   0.0000e+00
+-2.0000e-01   -8.3500e-12   2.3952e+10
+-4.0000e-01   -1.3120e-11   3.0488e+10
+-6.0000e-01   -2.5820e-11   2.3238e+10
+-8.0000e-01   -4.6130e-11   1.7342e+10
+-1.0000e+00   -6.9090e-11   1.4474e+10
+-1.0000e+00   -6.0970e-11   1.6402e+10
+-8.0000e-01   -1.6360e-11   4.8900e+10
+-6.0000e-01   -1.7000e-13   3.5294e+12
+-4.0000e-01   1.1400e-12   -3.5088e+11
+-2.0000e-01   9.2400e-12   -2.1645e+10
+0.0000e+00   1.0040e-11   0.0000e+00

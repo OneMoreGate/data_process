@@ -1,0 +1,28 @@
+  Measurement Number     Measurement type
+                 135                DC IV
+
+      Measurement ID             SeriesID
+       739681.653223                    0
+
+         MeasureMode                Bias1                Bias2
+                   1                    0                   -1
+
+                Step  Positive compliance  Negative compliance
+                 0.2               0.0001               0.0001
+
+  RealMeasuredPoints
+                  12
+
+        Bias        Current     Resistance
+0.0000e+00   1.2066e-08   0.0000e+00
+-2.0000e-01   -5.2596e-05   3.8026e+03
+-4.0000e-01   -9.9992e-05   4.0003e+03
+-6.0000e-01   -9.9996e-05   6.0002e+03
+-8.0000e-01   -9.9996e-05   8.0003e+03
+-1.0000e+00   -9.9994e-05   1.0001e+04
+-1.0000e+00   -9.9996e-05   1.0000e+04
+-8.0000e-01   -9.9994e-05   8.0005e+03
+-6.0000e-01   -9.9994e-05   6.0004e+03
+-4.0000e-01   -9.9994e-05   4.0002e+03
+-2.0000e-01   -5.2590e-05   3.8030e+03
+0.0000e+00   1.2448e-08   0.0000e+00
